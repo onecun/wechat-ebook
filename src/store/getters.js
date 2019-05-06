@@ -1,7 +1,7 @@
 // 表示 book 模块的数据 
 const book = {
-    test: (state) => {
-        return state.book.test
+    fileName: (state) => {
+        return state.book.fileName
     },
 }
 

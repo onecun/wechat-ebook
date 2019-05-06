@@ -19,6 +19,7 @@ module.exports = {
         'no-trailing-spaces': 'off',
         'no-unused-vars': 'off',
         'eol-last': 'off',
+        'padded-blocks': 'off',
 
     },
     parserOptions: {
