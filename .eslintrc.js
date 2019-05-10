@@ -20,7 +20,12 @@ module.exports = {
         'no-unused-vars': 'off',
         'eol-last': 'off',
         'padded-blocks': 'off',
-
+        'keyword-spacing': 'off',
+        'no-multiple-empty-lines': 'off',
+        'semi': 'off',
+        'no-useless-return': 'off',
+        'no-undef': 'off',
+        'quotes': 'off',
     },
     parserOptions: {
         parser: 'babel-eslint'

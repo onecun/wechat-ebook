@@ -1,8 +1,3 @@
 @import './normalize-zh.scss';
-
-// 缩放比例
-$ratio: 375 / 10;
-
-@function px2rem($px) {
-    @return $px / $ratio + rem;
-}
+@import './mixin.scss';
+@import './transition.scss';
