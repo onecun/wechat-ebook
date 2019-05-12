@@ -21,7 +21,9 @@ import {
 import {
     addCss
 } from '../../utils/book.js'
-import { setTimeout } from 'timers';
+import {
+    setTimeout
+} from 'timers';
 
 // import { constants } from 'crypto';
 global.ePub = Epub
@@ -29,6 +31,23 @@ global.ePub = Epub
 export default {
     mixins: [ebookMixin],
     methods: {
+        // touch 时，获取 手指 的初始位置和时间
+        touchStart(event) {
+            this.touchStartX = event.changedTouches[0].clientX
+            this.touchStartTime = event.timeStamp
+        },
+        // 手指抬起时，获取 手指的 末位置和时间, 并计算如何翻页
+        touchEnd(event) {
+            this.touchEndX = event.changedTouches[0].clientX
+            this.touchEndTime = event.timeStamp
+            const offsetX = this.touchStartX - this.touchEndX
+            const time = this.touchEndTime - this.touchStartTime
+            // 翻页，显示菜单
+            this.pageing(offsetX, time)
+            // 禁止事件默认方法调用和传播
+            event.preventDefault()
+            event.stopPropagation()
+        },
         bindEvents(el) {
             if (el) {
                 el.addEventListener('touchstart', (event) => {
@@ -81,7 +100,7 @@ export default {
             } else {
                 this.setDefaultFontFamily(font).then(() => {
                     setTimeout(() => {
-                        this.currentBook.rendition.themes.font(this.defaultFontFamily)          
+                        this.currentBook.rendition.themes.font(this.defaultFontFamily)
                     }, 300)
                 })
             }
@@ -111,12 +130,10 @@ export default {
             })
             this.rendition.themes.select(this.defaultTheme)
         },
-        initEpub() {
-            const me = this
+        initRendition() {
             // 本地资源路径
             const baseUrl = 'http://172.27.240.84:8081/'
             const resourceUrl = `${baseUrl}${this.fileName}.epub`
-
             // 显示图书 epubjs v0.3 api
             // 传入地址
             this.book = new Epub(resourceUrl)
@@ -133,37 +150,35 @@ export default {
                 this.initTheme()
                 this.initGlobleStyle()
             })
+        },
+        initGesture() {
             // 绑定事件, epubjs v0.3 绑定事件方法 
             this.rendition.hooks.content.register((contents) => {
                 const el = contents.document.documentElement
-                me.bindEvents(el)
+                this.bindEvents(el)
                 // 加入字体
                 contents.addStylesheet(`${process.env.VUE_APP_RES_URL}/cabin.css`)
                 contents.addStylesheet(`${process.env.VUE_APP_RES_URL}/daysOne.css`)
                 contents.addStylesheet(`${process.env.VUE_APP_RES_URL}/montserrat.css`)
                 contents.addStylesheet(`${process.env.VUE_APP_RES_URL}/tangerine.css`)
                 this.currentBook.rendition.themes.fontSize(this.defaultFontSize)
-                
             })
-
         },
-        // touch 时，获取 手指 的初始位置和时间
-        touchStart(event) {
-            this.touchStartX = event.changedTouches[0].clientX
-            this.touchStartTime = event.timeStamp
+        initPagination() {
+            // book 解析完以后
+            this.book.ready.then(() => {
+                // 简单分页， 默认 750 页 * （屏幕宽度 / 默认宽度375） * (字号大小 / 默认字号16)
+                return this.book.locations.generate(750 * (window.innerWidth / 375) * getFontSize() / 16)
+            }).then((locations) => {
+                this.setBookAvailable(true)
+            })
         },
-        // 手指抬起时，获取 手指的 末位置和时间, 并计算如何翻页
-        touchEnd(event) {
-            this.touchEndX = event.changedTouches[0].clientX
-            this.touchEndTime = event.timeStamp
-            const offsetX = this.touchStartX - this.touchEndX
-            const time = this.touchEndTime - this.touchStartTime
-            // 翻页，显示菜单
-            this.pageing(offsetX, time)
-            // 禁止事件默认方法调用和传播
-            event.preventDefault()
-            event.stopPropagation()
+        initEpub() {
+            this.initRendition()
+            this.initGesture()
+            this.initPagination()
         },
+        
     },
     mounted() {
         const fileName = this.$route.params.fileName.split('|').join('/')
