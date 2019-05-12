@@ -14,8 +14,11 @@ import {
     getFontFamily,
     saveFontFamily,
     saveFontSize,
-    getFontSize
+    getFontSize,
+    getTheme,
+    saveTheme,
 } from '../../utils/localStorage.js'
+import { addCss } from '../../utils/book.js'
 
 // import { constants } from 'crypto';
 global.ePub = Epub
@@ -69,20 +72,34 @@ export default {
         },
         initFont() {
             // 初始化 fontFamily
-            let font = getFontFamily(this.fileName)
+            let font = getFontFamily()
             if (!font) {
-                saveFontFamily(this.fileName, this.defaultFontFamily)
+                saveFontFamily(this.defaultFontFamily)
             } else {
                 this.setDefaultFontFamily(font)
             }
             // 初始化 fontSize
-            let fontSize = getFontSize(this.fileName)
+            let fontSize = getFontSize()
             if (!fontSize) {
-                saveFontSize(this.fileName, this.defaultFontSize)
+                saveFontSize(this.defaultFontSize)
             } else {
                 this.setDefaultFontSize(fontSize)
             }
 
+        },
+        initTheme() {
+            let defaultTheme = getTheme()
+            if (!defaultTheme) {
+                defaultTheme = this.themeList[0].name
+                saveTheme(defaultTheme)
+            } else {
+                this.setDefaultTheme(defaultTheme)
+            }
+            this.themeList.forEach(theme => {
+                // 注册样式
+                this.rendition.themes.register(theme.name, theme.style)
+            })
+            this.rendition.themes.select(this.defaultTheme)
         },
         initEpub() {
             const me = this
@@ -103,6 +120,8 @@ export default {
             // 显示
             this.rendition.display().then(() => {
                 this.initFont()
+                this.initTheme()
+                this.initGlobleStyle()
             })
             // 绑定事件, epubjs v0.3 绑定事件方法 
             this.rendition.hooks.content.register((contents) => {

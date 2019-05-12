@@ -35,7 +35,7 @@ export default {
         setFontFamily(font) {
             this.setDefaultFontFamily(font)
             // 缓存到 localSorage 中
-            saveFontFamily(this.fileName, font)
+            saveFontFamily(font)
             // 使用 epubjs 提供的方法改变字体
             if (font === 'Default') {
                 this.currentBook.rendition.themes.font('Arial')

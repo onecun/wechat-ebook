@@ -16,8 +16,9 @@
             </div>
         </div>
     </transition>
-    <setting-font></setting-font>
+    <setting-font-size></setting-font-size>
     <setting-font-family></setting-font-family>
+    <setting-theme></setting-theme>
 </div>
 </template>
 
@@ -25,14 +26,16 @@
 import {
     ebookMixin
 } from '../../utils/mixin.js'
-import SettingFont from './ebook-setting/SettingFont.vue'
+import SettingFontSize from './ebook-setting/SettingFontSize.vue'
 import SettingFontFamily from './ebook-setting/SettingFontFamily.vue'
+import SettingTheme from './ebook-setting/SettingTheme.vue'
 
 export default {
     mixins: [ebookMixin],
     components: {
-        SettingFont,
+        SettingFontSize,
         SettingFontFamily,
+        SettingTheme,
     },
     methods: {
         showSetting(key) {

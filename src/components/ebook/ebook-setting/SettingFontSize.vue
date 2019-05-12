@@ -49,7 +49,7 @@ export default {
         setFontSize(fontSize) {
             this.setDefaultFontSize(fontSize)
             // 缓存字号到本地
-            saveFontSize(this.fileName, fontSize)
+            saveFontSize(fontSize)
             // 使用 epubjs 提供的方法
             this.currentBook.rendition.themes.fontSize(fontSize)
         },

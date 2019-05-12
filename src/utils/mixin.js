@@ -2,6 +2,10 @@ import {
     mapGetters,
     mapActions
 } from 'vuex'
+import {
+    themeList,
+    addCss,
+} from './book.js'
 
 export const ebookMixin = {
     computed: {
@@ -25,7 +29,10 @@ export const ebookMixin = {
             'pagelist',
             'offsetY',
             'isBookmark'
-        ])
+        ]),
+        themeList() {
+            return themeList(this)
+        },
     },
     methods: {
         ...mapActions([
@@ -48,6 +55,15 @@ export const ebookMixin = {
             'setPagelist',
             'setOffsetY',
             'setIsBookmark'
-        ])
+        ]),
+        initGlobleStyle() {
+            let themes = {
+                'Default': `${process.env.VUE_APP_RES_URL}/theme/default.css`,
+                'Eye': `${process.env.VUE_APP_RES_URL}/theme/eye.css`,
+                'Gold': `${process.env.VUE_APP_RES_URL}/theme/grace.css`,
+                'Night': `${process.env.VUE_APP_RES_URL}/theme/night.css`,
+            }
+            addCss(themes[this.defaultTheme])
+        },
     },
 }
