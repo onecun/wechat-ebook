@@ -22,6 +22,7 @@
 <script>
 import { ebookMixin } from '../../../utils/mixin.js'
 import { FONT_FAMILY } from '../../../utils/book.js'
+import { saveFontFamily } from '../../../utils/localStorage.js'
 
 export default {
     mixins: [ebookMixin],
@@ -33,9 +34,11 @@ export default {
     methods: {
         setFontFamily(font) {
             this.setDefaultFontFamily(font)
+            // 缓存到 localSorage 中
+            saveFontFamily(this.fileName, font)
             // 使用 epubjs 提供的方法改变字体
             if (font === 'Default') {
-                this.currentBook.rendition.themes.font('Microsoft YaHei')
+                this.currentBook.rendition.themes.font('Arial')
             } else {
                 this.currentBook.rendition.themes.font(font)
             }

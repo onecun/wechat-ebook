@@ -35,6 +35,8 @@ import {
 import {
     FONT_SIZE_LIST
 } from '../../../utils/book.js'
+import { saveFontSize } from '../../../utils/localStorage.js'
+
 
 export default {
     mixins: [ebookMixin],
@@ -46,6 +48,8 @@ export default {
     methods: {
         setFontSize(fontSize) {
             this.setDefaultFontSize(fontSize)
+            // 缓存字号到本地
+            saveFontSize(this.fileName, fontSize)
             // 使用 epubjs 提供的方法
             this.currentBook.rendition.themes.fontSize(fontSize)
         },

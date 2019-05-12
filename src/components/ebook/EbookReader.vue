@@ -6,9 +6,18 @@
 </template>
 
 <script>
-import { ebookMixin } from '../../utils/mixin.js'
+import {
+    ebookMixin
+} from '../../utils/mixin.js'
 import Epub from 'epubjs'
-import { constants } from 'crypto';
+import {
+    getFontFamily,
+    saveFontFamily,
+    saveFontSize,
+    getFontSize
+} from '../../utils/localStorage.js'
+
+// import { constants } from 'crypto';
 global.ePub = Epub
 
 export default {
@@ -39,7 +48,7 @@ export default {
         toggleTitleAndMenu() {
             if (this.menuVisible) {
                 this.setSettingVisible(-1)
-                this.setFontFamilyVisible(false)                
+                this.setFontFamilyVisible(false)
             }
             this.setMenuVisible(!this.menuVisible)
         },
@@ -58,6 +67,23 @@ export default {
                 this.toggleTitleAndMenu()
             }
         },
+        initFont() {
+            // 初始化 fontFamily
+            let font = getFontFamily(this.fileName)
+            if (!font) {
+                saveFontFamily(this.fileName, this.defaultFontFamily)
+            } else {
+                this.setDefaultFontFamily(font)
+            }
+            // 初始化 fontSize
+            let fontSize = getFontSize(this.fileName)
+            if (!fontSize) {
+                saveFontSize(this.fileName, this.defaultFontSize)
+            } else {
+                this.setDefaultFontSize(fontSize)
+            }
+
+        },
         initEpub() {
             const me = this
             // 本地资源路径
@@ -75,7 +101,9 @@ export default {
                 method: 'default'
             })
             // 显示
-            this.rendition.display()
+            this.rendition.display().then(() => {
+                this.initFont()
+            })
             // 绑定事件, epubjs v0.3 绑定事件方法 
             this.rendition.hooks.content.register((contents) => {
                 const el = contents.document.documentElement
@@ -88,6 +116,9 @@ export default {
                     contents.addStylesheet(`${process.env.VUE_APP_RES_URL}/tangerine.css`),
                 ]).then(() => {
                     console.log('字体加载完成。。。')
+                    // 字体加载完成后， 设置字体
+                    this.currentBook.rendition.themes.font(this.defaultFontFamily)
+                    this.currentBook.rendition.themes.fontSize(this.defaultFontSize)
                 })
             })
 
@@ -123,5 +154,4 @@ export default {
 
 <style lang="scss" scoped>
 @import '../../assets/styles/global';
-
 </style>
