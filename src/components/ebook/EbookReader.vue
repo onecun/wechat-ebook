@@ -18,7 +18,10 @@ import {
     getTheme,
     saveTheme,
 } from '../../utils/localStorage.js'
-import { addCss } from '../../utils/book.js'
+import {
+    addCss
+} from '../../utils/book.js'
+import { setTimeout } from 'timers';
 
 // import { constants } from 'crypto';
 global.ePub = Epub
@@ -76,16 +79,23 @@ export default {
             if (!font) {
                 saveFontFamily(this.defaultFontFamily)
             } else {
-                this.setDefaultFontFamily(font)
+                this.setDefaultFontFamily(font).then(() => {
+                    setTimeout(() => {
+                        this.currentBook.rendition.themes.font(this.defaultFontFamily)          
+                    }, 300)
+                })
             }
             // 初始化 fontSize
             let fontSize = getFontSize()
             if (!fontSize) {
                 saveFontSize(this.defaultFontSize)
             } else {
-                this.setDefaultFontSize(fontSize)
+                this.setDefaultFontSize(fontSize).then(() => {
+                    setTimeout(() => {
+                        this.currentBook.rendition.themes.fontSize(this.defaultFontSize)
+                    }, 300)
+                })
             }
-
         },
         initTheme() {
             let defaultTheme = getTheme()
@@ -128,17 +138,12 @@ export default {
                 const el = contents.document.documentElement
                 me.bindEvents(el)
                 // 加入字体
-                Promise.all([
-                    contents.addStylesheet(`${process.env.VUE_APP_RES_URL}/cabin.css`),
-                    contents.addStylesheet(`${process.env.VUE_APP_RES_URL}/daysOne.css`),
-                    contents.addStylesheet(`${process.env.VUE_APP_RES_URL}/montserrat.css`),
-                    contents.addStylesheet(`${process.env.VUE_APP_RES_URL}/tangerine.css`),
-                ]).then(() => {
-                    console.log('字体加载完成。。。')
-                    // 字体加载完成后， 设置字体
-                    this.currentBook.rendition.themes.font(this.defaultFontFamily)
-                    this.currentBook.rendition.themes.fontSize(this.defaultFontSize)
-                })
+                contents.addStylesheet(`${process.env.VUE_APP_RES_URL}/cabin.css`)
+                contents.addStylesheet(`${process.env.VUE_APP_RES_URL}/daysOne.css`)
+                contents.addStylesheet(`${process.env.VUE_APP_RES_URL}/montserrat.css`)
+                contents.addStylesheet(`${process.env.VUE_APP_RES_URL}/tangerine.css`)
+                this.currentBook.rendition.themes.fontSize(this.defaultFontSize)
+                
             })
 
         },
