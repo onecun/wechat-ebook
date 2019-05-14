@@ -65,5 +65,11 @@ export const ebookMixin = {
             }
             addCss(themes[this.defaultTheme])
         },
+        hideTitleAndMenu() {
+            this.setMenuVisible(false)
+            // 同时隐藏 设置栏
+            this.setSettingVisible(-1)
+            this.setFontFamilyVisible(false)
+        },
     },
 }

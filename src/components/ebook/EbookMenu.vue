@@ -20,6 +20,7 @@
     <setting-font-family></setting-font-family>
     <setting-theme></setting-theme>
     <setting-progress></setting-progress>
+    <ebook-contents></ebook-contents>
 </div>
 </template>
 
@@ -31,6 +32,7 @@ import SettingFontSize from './ebook-setting/SettingFontSize.vue'
 import SettingFontFamily from './ebook-setting/SettingFontFamily.vue'
 import SettingTheme from './ebook-setting/SettingTheme.vue'
 import SettingProgress from './ebook-setting/SettingProgress.vue'
+import EbookContents from './EbookContents.vue'
 
 export default {
     mixins: [ebookMixin],
@@ -39,6 +41,7 @@ export default {
         SettingFontFamily,
         SettingTheme,
         SettingProgress,
+        EbookContents,
     },
     methods: {
         showSetting(key) {

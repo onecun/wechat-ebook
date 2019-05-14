@@ -77,12 +77,6 @@ export default {
             }
             this.setMenuVisible(!this.menuVisible)
         },
-        hideTitleAndMenu() {
-            this.setMenuVisible(false)
-            // 同时隐藏 设置栏
-            this.setSettingVisible(-1)
-            this.setFontFamilyVisible(false)
-        },
         pageing(offsetX, time) {
             if (time < 500 && offsetX > 40) {
                 this.nextPage()
@@ -167,6 +161,8 @@ export default {
         initPagination() {
             // book 解析完以后
             this.book.ready.then(() => {
+                // 解析目录
+                this.setNavigation(this.currentBook.navigation)
                 // 简单分页， 默认 750 页 * （屏幕宽度 / 默认宽度375） * (字号大小 / 默认字号16)
                 return this.book.locations.generate(750 * (window.innerWidth / 375) * getFontSize() / 16)
             }).then((locations) => {
