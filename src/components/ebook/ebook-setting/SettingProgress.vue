@@ -3,12 +3,11 @@
     <div class="setting-bar" v-show="menuVisible && settingVisible === 2">
         <div class="setting-progress">
             <div class="progress-wrapper">
-                <div class="read-percentage-wrapper">
-                    <span class="read-percentage-text">111</span>
-                    <span class="icon-forward"></span>
+                <div class="read-chapter-wrapper">
+                    <span class="read-chapter-text">{{ fileName.split('/')[1] }}</span>
                 </div>
-                <div class="progress-icon-wrapper">
-                    <span class="icon-back" @click="prevSection()"></span>
+                <div class="progress-icon-wrapper" @click="prevSection()">
+                    <span class="icon-back"></span>
                 </div>
                 <input class="progress" type="range"
                                             max="100"
@@ -19,8 +18,8 @@
                                             :value="progress"
                                             :disabled="!bookAvailable"
                                             ref="progress">
-                <div class="progress-icon-wrapper">
-                    <span class="icon-forward" @click="nextSection()"></span>
+                <div class="progress-icon-wrapper" @click="nextSection()">
+                    <span class="icon-forward"></span>
                 </div>
             </div>
             <div class="text-wrapper">
@@ -38,11 +37,24 @@ import {
 
 export default {
     mixins: [ebookMixin],
+    computed: {
+        // 本书的 章节数
+        sectionNum() {
+            return this.currentBook.spine.length - 1
+        },
+        // 章节在书中的 百分比位置
+        percenList() {
+            let percenList = []
+            for (let i = 0; i < this.sectionNum; i++) {
+                percenList.push(Math.floor(i / this.sectionNum * 100))
+            }
+            return percenList
+        },
+    },
     methods: {
         onProgressChange(progress) {
             this.setProgress(progress).then(() => {
                 this.displayProgress()
-            }).then(() => {
                 this.updateProgressBg()
             })
         },
@@ -51,18 +63,59 @@ export default {
                 this.updateProgressBg()
             })
         },
+        // 显示指定 百分比位置的内容
         displayProgress() {
             // 获取指定 百分比的 cfi
             const cfi = this.currentBook.locations.cfiFromPercentage(this.progress / 100)
             // 渲染这个 cfi
             this.currentBook.rendition.display(cfi)
+            // set section
+            this.setSectionsPercent()
         },
+        // 更新 百分比条 的视图
         updateProgressBg() {
             let input = this.$refs.progress
             input.setAttribute('style', `background-size: ${this.progress}% 100%`)
         },
-        nextSection() {},
-        prevSection() {},
+        nextSection() {
+            // this.section 是全局的 当前章节
+            if (this.section < this.sectionNum && this.bookAvailable) {
+                this.setSection(this.section + 1).then(() => {
+                    this.displaySection()
+                })
+            }
+        },
+        prevSection() {
+            if (this.section > 0 && this.bookAvailable) {
+                this.setSection(this.section - 1).then(() => {
+                    this.displaySection()
+                })
+            }
+        },
+        // 显示指定章节
+        displaySection() {
+            // 获取章节信息
+            let sectionInfo = this.currentBook.section(this.section)
+            // 跳转
+            if (sectionInfo && sectionInfo.href) {
+                this.currentBook.rendition.display(sectionInfo.href).then(() => {
+                    // 获取当前百分比
+                    let progress = Math.floor(this.section / this.sectionNum * 100)
+                    this.setProgress(progress)
+                })
+            }
+        },
+        // 跳转章节后，设置章节数
+        setSectionsPercent() {
+            for (let i = 0; i < this.percenList.length; i++) {
+                if (this.progress >= this.percenList[i] && this.progress < this.percenList[i + 1]) {
+                    this.setSection(i)
+                }
+            }
+        },
+    },
+    updated() {
+        this.updateProgressBg()
     },
 }
 </script>
@@ -92,7 +145,7 @@ export default {
             padding: 0 px2rem(15);
             @include center;
 
-            .read-percentage-wrapper {
+            .read-chapter-wrapper {
                 position: absolute;
                 top: 0;
                 left: 0;
@@ -100,6 +153,10 @@ export default {
                 height: px2rem(40);
                 width: 100%;
                 @include center;
+
+                .read-chapter-text {
+                    @include ellipsis;
+                }
             }
 
             .progress-icon-wrapper {
@@ -118,6 +175,7 @@ export default {
                     outline: none;
                 }
 
+                // chrome 适配
                 &::-webkit-slider-thumb {
                     appearance: none;
                     height: px2rem(20);
@@ -128,6 +186,7 @@ export default {
                     border: px2rem(1) solid #ddd;
                 }
 
+                // firefox 适配
                 &::-moz-range-thumb {
                     height: px2rem(20);
                     width: px2rem(20);
