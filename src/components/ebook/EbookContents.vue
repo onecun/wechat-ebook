@@ -5,7 +5,7 @@
             <div class="content-title">目录</div>
             <div class="content-page-wrapper">
                 <div class="content-wrapper" v-if="bookAvailable">
-                    <div class="content-item" v-for="(item, index) in navigation.toc" :key="index" @click="jumpTo(item.href)">
+                    <div class="content-item" v-for="(item, index) in navigation.toc" :key="index" @click="jumpTo(item.href, index)">
                         <span class="text">{{item.label}}</span>
                     </div>
                 </div>
@@ -25,8 +25,10 @@ import {
 export default {
     mixins: [ebookMixin],
     methods: {
-        jumpTo(href) {
-            log(href)
+        jumpTo(href, index) {
+            log(href, index + 1)
+            this.setSection(index + 1)
+            this.setProgress(Math.floor((this.section) / (this.currentBook.spine.length - 1) * 100))
             this.currentBook.rendition.display(href)
         },
     },
